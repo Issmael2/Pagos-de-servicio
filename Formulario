@@ -1,0 +1,34 @@
+<section id="registro-pagos">
+  <h2>Registro de Pago</h2>
+  <form action="https://sheetdb.io/api/v1/abc123def456" method="POST" id="form-pagos">
+    <input name="data[nombre]" placeholder="Nombre del alumno" required>
+    <input name="data[fecha]" type="date" required>
+    <input name="data[monto]" type="number" placeholder="Monto pagado" required>
+    <select name="data[metodo]" required>
+      <option value="">Selecciona método</option>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Transferencia">Transferencia</option>
+      <option value="Tarjeta">Tarjeta</option>
+    </select>
+    <button type="submit">Registrar Pago</button>
+  </form>
+  <p id="mensaje-confirmacion" style="display:none; color:green;">✅ Pago registrado correctamente.</p>
+</section>
+
+<script>
+  const form = document.getElementById("form-pagos");
+  const mensaje = document.getElementById("mensaje-confirmacion");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    fetch(form.action, {
+      method: "POST",
+      body: new FormData(form)
+    }).then(response => {
+      if (response.ok) {
+        form.reset();
+        mensaje.style.display = "block";
+      }
+    });
+  });
+</script>
