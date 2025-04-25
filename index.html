@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SereneFit - Pagos y Asistencias</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: url('logo_serenefit.png') no-repeat center center fixed;
+      background-size: 60%;
+      background-color: #f0f4f3;
+      margin: 0;
+      padding: 40px 0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 480px;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    .logo {
+      max-width: 150px;
+      margin: 0 auto 20px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #00695c;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #26a69a;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #00796b;
+    }
+
+    .mensaje {
+      display: none;
+      color: #2e7d32;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <img src="logo_serenefit.png" alt="SereneFit Logo" class="logo">
+  <h2>Registro de Pago</h2>
+  <form id="form-pagos" action="https://sheetdb.io/api/v1/kymiv2xja4did" method="POST">
+    <input name="data[nombre]" type="text" placeholder="Nombre del alumno" required>
+    <input name="data[fecha]" type="date" required>
+    <input name="data[monto]" type="number" placeholder="Monto pagado" required>
+    <select name="data[metodo]" required>
+      <option value="">Método de pago</option>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Transferencia">Transferencia</option>
+      <option value="Tarjeta">Tarjeta</option>
+    </select>
+    <button type="submit">Registrar Pago</button>
+    <p class="mensaje" id="mensaje-pago">✅ ¡Pago registrado exitosamente!</p>
+  </form>
+</div>
+
+<div class="container">
+  <h2>Registro de Asistencia</h2>
+  <form id="form-asistencias" action="https://sheetdb.io/api/v1/kymiv2xja4did" method="POST">
+    <input name="data[nombre]" type="text" placeholder="Nombre del alumno" required>
+    <input name="data[fecha]" type="date" required>
+    <input name="data[clase]" type="text" placeholder="Tipo de clase (Pilates, Yoga, etc.)" required>
+    <select name="data[asistio]" required>
+      <option value="Sí">Asistió</option>
+      <option value="No">No asistió</option>
+    </select>
+    <input type="hidden" name="data[registro]" value="Asistencias">
+    <button type="submit">Registrar Asistencia</button>
+    <p class="mensaje" id="mensaje-asistencia">✅ ¡Asistencia registrada exitosamente!</p>
+  </form>
+</div>
+
+<script>
+  const formPago = document.getElementById("form-pagos");
+  const mensajePago = document.getElementById("mensaje-pago");
+  formPago.addEventListener("submit", function (e) {
+    e.preventDefault();
+    fetch(formPago.action, {
+      method: "POST",
+      body: new FormData(formPago)
+    }).then(response => {
+      if (response.ok) {
+        formPago.reset();
+        mensajePago.style.display = "block";
+        setTimeout(() => mensajePago.style.display = "none", 3000);
+      }
+    });
+  });
+
+  const formAsistencia = document.getElementById("form-asistencias");
+  const mensajeAsistencia = document.getElementById("mensaje-asistencia");
+  formAsistencia.addEventListener("submit", function (e) {
+    e.preventDefault();
+    fetch(formAsistencia.action, {
+      method: "POST",
+      body: new FormData(formAsistencia)
+    }).then(response => {
+      if (response.ok) {
+        formAsistencia.reset();
+        mensajeAsistencia.style.display = "block";
+        setTimeout(() => mensajeAsistencia.style.display = "none", 3000);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
