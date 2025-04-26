@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Pagos - Pilates</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #e0f7fa;
+      margin: 0;
+      padding: 0;
+      color: #01579b;
+    }
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .logo {
+      width: 150px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0277bd;
+      font-size: 28px;
+    }
+    form {
+      text-align: left;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #81d4fa;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+      background-color: #f1faff;
+    }
+    input:focus, select:focus {
+      border-color: #29b6f6;
+      outline: none;
+    }
+    button {
+      background-color: #29b6f6;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      border: none;
+    }
+    button:hover {
+      background-color: #0288d1;
+    }
+    footer {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <img src="LOGO.jpeg" alt="Logo Pilates" class="logo">
+    <h1>Registro de Pagos</h1>
+
+    <form id="form-pagos" action="https://script.google.com/macros/s/AKfycbwQGnU3cY6NIJh3FD9I4A_zXpFo0i4pkTSkUaWAg7wyQ_W537wm6UKyyKM4HqSpIgeV/exec" method="POST">
+      <input name="nombre" type="text" placeholder="Nombre del cliente" required>
+      <input name="fecha" type="date" required>
+      <input name="monto" type="number" placeholder="Monto pagado" required>
+      <select name="metodo" required>
+        <option value="">Método de pago</option>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Tarjeta">Tarjeta</option>
+      </select>
+      <button type="submit">Registrar Pago</button>
+    </form>
+  </div>
+
+  <footer>
+    © 2025 Pilates Studio. Todos los derechos reservados.
+  </footer>
+
+  <script>
+    document.getElementById("form-pagos").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+
+      fetch(form.action, {
+        method: "POST",
+        body: data
+      })
+      .then(response => response.text())
+      .then(result => {
+        console.log("Respuesta del servidor:", result);
+        alert("¡Pago registrado correctamente!");
+        form.reset();
+      })
+      .catch(error => {
+        console.error("Error al registrar el pago:", error);
+        alert("Hubo un error al registrar el pago. Intenta de nuevo.");
+      });
+    });
+  </script>
+</body>
+</html>
