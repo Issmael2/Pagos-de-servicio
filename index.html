@@ -107,7 +107,6 @@
       metodo: formData.get('metodo')
     };
 
-    // Validación de los campos
     if (!data.nombre || !data.fecha || !data.monto || !data.metodo) {
       mensajeError.textContent = '⚠️ Todos los campos son obligatorios.';
       mensajeError.style.display = "block";
@@ -121,6 +120,8 @@
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
+      mode: 'cors' 
+})
     }).then(response => {
       if (response.ok) {
         form.reset();
