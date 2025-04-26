@@ -100,24 +100,25 @@
       metodo: formData.get('metodo')
     };
 
-    fetch('https://script.google.com/macros/s/AKfycbwQGnU3cY6NIJh3FD9I4A_zXpFo0i4pkTSkUaWAg7wyQ_W537wm6UKyyKM4HqSpIgeV/exec, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    }).then(response => {
-      if (response.ok) {
-        form.reset();
-        mensaje.style.display = "block";
-        setTimeout(() => mensaje.style.display = "none", 3000);
-      } else {
-        alert("Error al registrar el pago. Inténtalo de nuevo.");
-      }
-    }).catch(error => {
-      console.error('Error:', error);
-      alert("Error de conexión. Inténtalo de nuevo.");
-    });
+   fetch('https://script.google.com/macros/s/AKfycbwQGnU3cY6NIJh3FD9I4A_zXpFo0i4pkTSkUaWAg7wyQ_W537wm6UKyyKM4HqSpIgeV/exec', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(data)
+}).then(response => {
+  if (response.ok) {
+    form.reset();
+    mensaje.style.display = "block";
+    setTimeout(() => mensaje.style.display = "none", 3000);
+  } else {
+    alert("Error al registrar el pago. Inténtalo de nuevo.");
+  }
+}).catch(error => {
+  console.error('Error:', error);
+  alert("Error de conexión. Inténtalo de nuevo.");
+});
+
   });
 </script>
 
