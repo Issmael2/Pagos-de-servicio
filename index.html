@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Pagos - Pilates</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0 url('LOGO.jpeg') no-repeat center top;
+      background-size: contain;
+      background-attachment: fixed;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 150px auto 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    footer {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Registro de Pagos</h1>
+
+    <form id="form-pagos" action="TU_URL_WEB_APP" method="POST">
+      <input name="nombre" type="text" placeholder="Nombre del alumno" required>
+      <input name="fecha" type="date" required>
+      <input name="monto" type="number" placeholder="Monto pagado" required>
+      <select name="metodo" required>
+        <option value="">Método de pago</option>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Tarjeta">Tarjeta</option>
+      </select>
+      <button type="submit">Registrar Pago</button>
+    </form>
+  </div>
+
+  <footer>
+    © 2025 Pilates Studio. Todos los derechos reservados.
+  </footer>
+
+  <script>
+    document.getElementById("form-pagos").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+
+      fetch(form.action, {
+        method: "POST",
+        body: data
+      })
+      .then(response => response.text())
+      .then(result => {
+        console.log("Respuesta del servidor:", result);
+        alert("¡Pago registrado correctamente!");
+        form.reset();
+      })
+      .catch(error => {
+        console.error("Error al registrar el pago:", error);
+        alert("Hubo un error al registrar el pago. Intenta de nuevo.");
+      });
+    });
+  </script>
+</body>
+</html>
