@@ -3,80 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Registro de Pagos - Pilates</title>
+  <title>Registro de Pago - Serenefit</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #e0f7fa;
       margin: 0;
       padding: 0;
-      color: #01579b;
+      background-color: #f0f7f7;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
     }
     .container {
-      max-width: 500px;
-      margin: 50px auto;
-      background: rgba(255, 255, 255, 0.95);
+      background: #ffffff;
       padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
       text-align: center;
+      position: relative;
+      z-index: 2;
     }
-    .logo {
+    .logo img {
       width: 150px;
-      height: auto;
       margin-bottom: 20px;
     }
-    h1 {
-      text-align: center;
+    h2 {
+      color: #00796B;
       margin-bottom: 20px;
-      color: #0277bd;
-      font-size: 28px;
+      font-size: 24px;
     }
     form {
-      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
-    input, select, button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #81d4fa;
-      border-radius: 8px;
-      box-sizing: border-box;
+    input, select {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
       font-size: 16px;
-      background-color: #f1faff;
-    }
-    input:focus, select:focus {
-      border-color: #29b6f6;
-      outline: none;
+      width: 100%;
     }
     button {
-      background-color: #29b6f6;
+      background-color: #009688;
       color: white;
-      font-weight: bold;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
       cursor: pointer;
       transition: background 0.3s ease;
-      border: none;
     }
     button:hover {
-      background-color: #0288d1;
+      background-color: #00796B;
     }
-    footer {
-      text-align: center;
-      margin: 20px 0;
-      font-size: 14px;
-      color: #555;
+    .background-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.05;
+      z-index: 1;
+      max-width: 80%;
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <img src="LOGO.jpeg" alt="Logo Pilates" class="logo">
-    <h1>Registro de Pagos</h1>
 
-    <form id="form-pagos" action="https://script.google.com/macros/s/AKfycbwQGnU3cY6NIJh3FD9I4A_zXpFo0i4pkTSkUaWAg7wyQ_W537wm6UKyyKM4HqSpIgeV/exec" method="POST">
-      <input name="nombre" type="text" placeholder="Nombre del cliente" required>
+  <img src="logo_serenefit.png" alt="Logo de fondo" class="background-logo">
+
+  <div class="container">
+    <div class="logo">
+      <img src="logo_serenefit.png" alt="Logo Serenefit">
+    </div>
+
+    <h2>Registro de Pago</h2>
+
+    <form id="form-pagos" method="POST" action="TU_URL_DEL_APPS_SCRIPT">
+      <input name="nombre" type="text" placeholder="Nombre del alumno" required>
       <input name="fecha" type="date" required>
       <input name="monto" type="number" placeholder="Monto pagado" required>
       <select name="metodo" required>
@@ -89,31 +97,5 @@
     </form>
   </div>
 
-  <footer>
-    © 2025 Pilates Studio. Todos los derechos reservados.
-  </footer>
-
-  <script>
-    document.getElementById("form-pagos").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const data = new FormData(form);
-
-      fetch(form.action, {
-        method: "POST",
-        body: data
-      })
-      .then(response => response.text())
-      .then(result => {
-        console.log("Respuesta del servidor:", result);
-        alert("¡Pago registrado correctamente!");
-        form.reset();
-      })
-      .catch(error => {
-        console.error("Error al registrar el pago:", error);
-        alert("Hubo un error al registrar el pago. Intenta de nuevo.");
-      });
-    });
-  </script>
 </body>
 </html>
