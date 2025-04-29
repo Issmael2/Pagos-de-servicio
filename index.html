@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Pagos</title>
+</head>
+<body>
+  <h1>Formulario de Pago</h1>
+  <form id="form-pagos">
+    <input name="nombre" type="text" placeholder="Nombre del alumno" required><br><br>
+    <input name="fecha" type="date" required><br><br>
+    <input name="monto" type="number" placeholder="Monto pagado" required><br><br>
+    <select name="metodo" required>
+      <option value="">Método de pago</option>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Transferencia">Transferencia</option>
+      <option value="Tarjeta">Tarjeta</option>
+    </select><br><br>
+    <button type="submit">Registrar Pago</button>
+  </form>
+
+  <p id="mensaje-confirmacion" style="display:none;">✅ ¡Pago registrado correctamente!</p>
+
+  <script>
+    const form = document.getElementById("form-pagos");
+    const mensaje = document.getElementById("mensaje-confirmacion");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = {
+        nombre: form.nombre.value,
+        fecha: form.fecha.value,
+        monto: form.monto.value,
+        metodo: form.metodo.value
+      };
+
+      fetch('https://script.google.com/macros/s/AKfycbyMaCcO51HG00IYB_B8Dp4Zedm0iavnXlR5bZxZPn4KGTLe-xKCj-uSBTbvScx09zeR/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }).then(response => {
+        if (response.ok) {
+          form.reset();
+          mensaje.style.display = "block";
+          setTimeout(() => mensaje.style.display = "none", 3000);
+        } else {
+          alert("Error al registrar el pago.");
+        }
+      }).catch(error => {
+        console.error('Error:', error);
+        alert("Error de conexión.");
+      });
+    });
+  </script>
+</body>
+</html>
