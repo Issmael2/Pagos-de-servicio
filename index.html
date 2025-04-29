@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Pagos - Pilates</title>
+  <style>
+     body {
+        font-family: 'Montserrat', sans-serif;
+        background: #f0f4f3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+
+      h2 {
+        color: #2c3e50;
+        text-align: center;
+      }
+
+      input, select, button {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+      }
+
+      button {
+        background-color: #42a5f5;
+        color: white;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #1e88e5;
+      }
+
+      #mensaje {
+        margin-top: 10px;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .logo {
+        display: block;
+        margin: 0 auto 20px;
+        width: 150px;
+      }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <img src="LOGO.jpeg" alt="Logo Pilates" class="logo">
+    <h1>Registro de Pagos</h1>
+
+    <form id="form-pagos" action="TU_URL_WEB_APP" method="POST">
+      <input name="nombre" type="text" placeholder="Nombre del alumno" required>
+      <input name="fecha" type="date" required>
+      <input name="monto" type="number" placeholder="Monto pagado" required>
+      <select name="metodo" required>
+        <option value="">Método de pago</option>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Tarjeta">Tarjeta</option>
+      </select>
+      <button type="submit">Registrar Pago</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("form-pagos").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+
+      fetch(form.action, {
+        method: "POST",
+        body: data
+      })
+      .then(response => response.text())
+      .then(result => {
+        console.log("Respuesta del servidor:", result);
+        alert("¡Pago registrado correctamente!");
+        form.reset();
+      })
+      .catch(error => {
+        console.error("Error al registrar el pago:", error);
+        alert("Hubo un error al registrar el pago. Intenta de nuevo.");
+      });
+    });
+  </script>
+</body>
+</html>
