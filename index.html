@@ -38,7 +38,7 @@ button:active {
 }
 
 .menu button {
-  width: 32%;
+  width: 23%;
   margin: 5px 1%;
   background: #455a64;
   color: white;
@@ -91,6 +91,7 @@ button:active {
   <button onclick="verClientes()">Clientes</button>
   <button onclick="verIngresos()">Ingresos</button>
   <button onclick="noPagaron()">No pagaron</button>
+  <button onclick="verDashboard()">Dashboard</button>
 </div>
 
 <div id="pantalla"></div>
@@ -100,10 +101,9 @@ const URL = "https://script.google.com/macros/s/AKfycbxDB9WpC0yh1A036Ogi5iLmVPFg
 
 let clientes = [];
 
-// 🔥 FUNCIÓN QUE ARREGLA LAS URL DE DRIVE
+// 🔥 FIX URL IMÁGENES
 function convertirURL(url) {
   if (!url) return "";
-
   if (url.includes("googleusercontent.com")) return url;
 
   if (url.includes("drive.google.com")) {
@@ -142,6 +142,8 @@ function guardar() {
       method: "POST",
       body: JSON.stringify({ nombre, fecha, tipo, monto, foto: base64 })
     }).then(() => {
+
+      // 🔄 limpiar
       document.getElementById("nombre").value = "";
       document.getElementById("fecha").value = "";
       document.getElementById("tipo").selectedIndex = 0;
@@ -198,7 +200,7 @@ function verIngresos() {
       (c.historial || []).forEach(p => {
         const fecha = new Date(p[2]);
         if (fecha.getMonth() === mes && fecha.getFullYear() === año) {
-          total += Number(p[5]);
+          total += Number(p[5] || 0);
         }
       });
     });
@@ -252,6 +254,51 @@ function noPagaron() {
 
     html += `<button class="volver" onclick="menu()">⬅ Volver</button>`;
     document.getElementById("pantalla").innerHTML = html;
+  });
+}
+
+// 🔥 DASHBOARD
+function verDashboard() {
+  cargar().then(() => {
+
+    const hoy = new Date();
+    const mes = hoy.getMonth();
+    const año = hoy.getFullYear();
+
+    let ingresos = 0;
+    let activos = 0;
+    let vencidos = 0;
+    let noPagaron = 0;
+
+    clientes.forEach(c => {
+
+      let pagoMes = false;
+
+      (c.historial || []).forEach(p => {
+        const fecha = new Date(p[2]);
+
+        if (fecha.getMonth() === mes && fecha.getFullYear() === año) {
+          ingresos += Number(p[5] || 0);
+          pagoMes = true;
+        }
+      });
+
+      if (c.estado === "Activo") activos++;
+      else vencidos++;
+
+      if (!pagoMes) noPagaron++;
+    });
+
+    document.getElementById("pantalla").innerHTML = `
+      <h3>📊 Dashboard</h3>
+
+      <div class="card">💰 <b>Ingresos del mes:</b> $${ingresos}</div>
+      <div class="card">🟢 <b>Activos:</b> ${activos}</div>
+      <div class="card">🔴 <b>Vencidos:</b> ${vencidos}</div>
+      <div class="card">❌ <b>No pagaron:</b> ${noPagaron}</div>
+
+      <button class="volver" onclick="menu()">⬅ Volver</button>
+    `;
   });
 }
 
