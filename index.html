@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gym Control</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
+  color: white;
+}
+
+/* HEADER */
+.header {
+  padding: 20px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* CONTENIDO */
+.container {
+  padding: 15px;
+}
+
+/* INPUTS */
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+}
+
+/* BOTON */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: none;
+  background: #00e676;
+  color: black;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* BUSCADOR */
+.buscar {
+  margin: 10px 0;
+}
+
+/* CARD */
+.card {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.08);
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* FOTO */
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+/* INFO */
+.info {
+  flex: 1;
+}
+
+.estado-activo {
+  color: #00e676;
+  font-weight: bold;
+}
+
+.estado-vencido {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+/* HISTORIAL */
+.historial {
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+/* BOTON VOLVER */
+.volver {
+  background: #ff5252;
+  margin-top: 15px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">💪 Dejavu Gym </div>
+
+<div class="container">
+
+<h3>Registrar cliente</h3>
+
+<input type="text" id="nombre" placeholder="Nombre">
+<input type="date" id="fecha">
+
+<select id="membresia">
+  <option>Mensual</option>
+  <option>Semanal</option>
+</select>
+
+<input type="number" id="monto" placeholder="Monto">
+<input type="file" id="foto">
+
+<button onclick="guardar()">Guardar</button>
+
+<h3>Clientes</h3>
+
+<input class="buscar" type="text" id="buscar" placeholder="Buscar..." oninput="filtrar()">
+
+<div id="lista"></div>
+
+</div>
+
+<script>
+
+const URL = "TU_URL_WEB_APP";
+let clientes = [];
+
+// Convertir imagen
+function convertirBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+  });
+}
+
+// Guardar
+async function guardar() {
+  const file = foto.files[0];
+  let base64 = "";
+
+  if (file) base64 = await convertirBase64(file);
+
+  const data = {
+    nombre: nombre.value,
+    fecha: fecha.value,
+    membresia: membresia.value,
+    monto: monto.value,
+    foto: base64
+  };
+
+  fetch(URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    alert("Guardado");
+    cargar();
+  });
+}
+
+// Cargar
+function cargar() {
+  fetch(URL)
+  .then(res => res.json())
+  .then(data => {
+    clientes = data;
+    mostrar(clientes);
+  });
+}
+
+// Mostrar lista
+function mostrar(data) {
+  let html = "";
+
+  data.forEach(c => {
+    html += `
+      <div class="card" onclick="verHistorial(${c.id})">
+        ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
+        <div class="info">
+          <b>${c.nombre}</b><br>
+          <span class="${c.estado === 'Activo' ? 'estado-activo' : 'estado-vencido'}">
+            ${c.estado}
+          </span><br>
+          Vence: ${new Date(c.vencimiento).toLocaleDateString()}
+        </div>
+      </div>
+    `;
+  });
+
+  lista.innerHTML = html;
+}
+
+// Filtrar
+function filtrar() {
+  const texto = buscar.value.toLowerCase();
+  const filtrados = clientes.filter(c => c.nombre.toLowerCase().includes(texto));
+  mostrar(filtrados);
+}
+
+// Historial
+function verHistorial(id) {
+  const cliente = clientes.find(c => c.id == id);
+
+  let html = `
+    <h3>${cliente.nombre}</h3>
+  `;
+
+  cliente.historial.forEach(p => {
+    html += `
+      <div class="historial">
+        Pago: ${new Date(p[2]).toLocaleDateString()}<br>
+        Vence: ${new Date(p[3]).toLocaleDateString()}<br>
+        ${p[4]} - $${p[5]}
+      </div>
+    `;
+  });
+
+  html += `<button class="volver" onclick="cargar()">Volver</button>`;
+
+  lista.innerHTML = html;
+}
+
+cargar();
+
+</script>
+
+</body>
+</html>
