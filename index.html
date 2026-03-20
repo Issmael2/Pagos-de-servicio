@@ -64,6 +64,7 @@ button:active {
 
 .estado-activo { color: #00e676; }
 .estado-vencido { color: red; }
+.estado-pendiente { color: orange; }
 
 .volver {
   background: #607d8b;
@@ -74,24 +75,26 @@ button:active {
 
 <body>
 
-<h2>Registrar cliente</h2>
+<div id="inicio">
+  <h2>Registrar cliente</h2>
 
-<input id="nombre" placeholder="Nombre">
-<input id="fecha" type="date">
-<select id="tipo">
-  <option>Mensual</option>
-  <option>Semanal</option>
-</select>
-<input id="monto" type="number" placeholder="Monto">
-<input id="foto" type="file">
+  <input id="nombre" placeholder="Nombre">
+  <input id="fecha" type="date">
+  <select id="tipo">
+    <option>Mensual</option>
+    <option>Semanal</option>
+  </select>
+  <input id="monto" type="number" placeholder="Monto">
+  <input id="foto" type="file">
 
-<button onclick="guardar()">Guardar</button>
+  <button onclick="guardar()">Guardar</button>
+</div>
 
 <div class="menu">
-  <button onclick="verClientes()">Clientes</button>
-  <button onclick="verIngresos()">Ingresos</button>
-  <button onclick="noPagaron()">No pagaron</button>
-  <button onclick="verDashboard()">Dashboard</button>
+  <button onclick="mostrarVista('clientes')">Clientes</button>
+  <button onclick="mostrarVista('ingresos')">Ingresos</button>
+  <button onclick="mostrarVista('nopago')">No pagaron</button>
+  <button onclick="mostrarVista('dashboard')">Dashboard</button>
 </div>
 
 <div id="pantalla"></div>
@@ -101,7 +104,7 @@ const URL = "https://script.google.com/macros/s/AKfycbxDB9WpC0yh1A036Ogi5iLmVPFg
 
 let clientes = [];
 
-// 🔥 FIX URL IMÁGENES
+// 🔥 FIX imágenes
 function convertirURL(url) {
   if (!url) return "";
   if (url.includes("googleusercontent.com")) return url;
@@ -112,7 +115,6 @@ function convertirURL(url) {
       return "https://lh3.googleusercontent.com/d/" + idMatch[1];
     }
   }
-
   return url;
 }
 
@@ -124,6 +126,21 @@ function cargar() {
     });
 }
 
+// 🔥 CONTROL DE VISTAS
+function mostrarVista(vista) {
+  document.getElementById("inicio").style.display = "none";
+
+  if (vista === "clientes") verClientes();
+  else if (vista === "ingresos") verIngresos();
+  else if (vista === "nopago") noPagaron();
+  else if (vista === "dashboard") verDashboard();
+}
+
+function menu() {
+  document.getElementById("pantalla").innerHTML = "";
+  document.getElementById("inicio").style.display = "block";
+}
+
 function guardar() {
   const nombre = document.getElementById("nombre").value;
   const fecha = document.getElementById("fecha").value;
@@ -132,6 +149,10 @@ function guardar() {
   const file = document.getElementById("foto").files[0];
 
   if (!nombre) return alert("Nombre requerido");
+
+  if (tipo === "Mensual" && monto < 350) {
+    return alert("El pago mensual mínimo es $350");
+  }
 
   const reader = new FileReader();
 
@@ -143,7 +164,6 @@ function guardar() {
       body: JSON.stringify({ nombre, fecha, tipo, monto, foto: base64 })
     }).then(() => {
 
-      // 🔄 limpiar
       document.getElementById("nombre").value = "";
       document.getElementById("fecha").value = "";
       document.getElementById("tipo").selectedIndex = 0;
@@ -170,7 +190,11 @@ function verClientes() {
           
           <div style="flex:1;">
             <b>${c.nombre}</b><br>
-            <span class="${c.estado === 'Activo' ? 'estado-activo' : 'estado-vencido'}">
+            <span class="${
+              c.estado === 'Activo' ? 'estado-activo' :
+              c.estado === 'Pendiente' ? 'estado-pendiente' :
+              'estado-vencido'
+            }">
               ${c.estado}
             </span><br>
             <small>Vence: ${c.vencimiento}</small>
@@ -233,16 +257,11 @@ function noPagaron() {
 
         html += `
           <div class="card">
-            <img class="avatar" src="${convertirURL(c.foto)}" onerror="this.src='https://via.placeholder.com/55'">
-            
+            <img class="avatar" src="${convertirURL(c.foto)}">
             <div style="flex:1;">
               <b>${c.nombre}</b><br>
               <span class="estado-vencido">No ha pagado</span>
             </div>
-
-            <button onclick="renovar('${c.nombre}')" style="width:auto;padding:8px;">
-              💰
-            </button>
           </div>
         `;
       }
@@ -257,7 +276,6 @@ function noPagaron() {
   });
 }
 
-// 🔥 DASHBOARD
 function verDashboard() {
   cargar().then(() => {
 
@@ -284,6 +302,7 @@ function verDashboard() {
       });
 
       if (c.estado === "Activo") activos++;
+      else if (c.estado === "Pendiente") vencidos++;
       else vencidos++;
 
       if (!pagoMes) noPagaron++;
@@ -292,10 +311,10 @@ function verDashboard() {
     document.getElementById("pantalla").innerHTML = `
       <h3>📊 Dashboard</h3>
 
-      <div class="card">💰 <b>Ingresos del mes:</b> $${ingresos}</div>
-      <div class="card">🟢 <b>Activos:</b> ${activos}</div>
-      <div class="card">🔴 <b>Vencidos:</b> ${vencidos}</div>
-      <div class="card">❌ <b>No pagaron:</b> ${noPagaron}</div>
+      <div class="card">💰 Ingresos: $${ingresos}</div>
+      <div class="card">🟢 Activos: ${activos}</div>
+      <div class="card">🔴 Vencidos: ${vencidos}</div>
+      <div class="card">❌ No pagaron: ${noPagaron}</div>
 
       <button class="volver" onclick="menu()">⬅ Volver</button>
     `;
@@ -320,10 +339,6 @@ function renovar(nombre) {
     alert("Pago registrado 💰");
     verClientes();
   });
-}
-
-function menu() {
-  document.getElementById("pantalla").innerHTML = "";
 }
 
 cargar();
