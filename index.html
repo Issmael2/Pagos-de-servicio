@@ -12,7 +12,6 @@ body {
   color: white;
 }
 
-/* HEADER */
 .header {
   padding: 20px;
   text-align: center;
@@ -20,12 +19,10 @@ body {
   font-weight: bold;
 }
 
-/* CONTENIDO */
 .container {
   padding: 15px;
 }
 
-/* INPUTS */
 input, select {
   width: 100%;
   padding: 12px;
@@ -35,7 +32,7 @@ input, select {
   outline: none;
 }
 
-/* BOTON */
+/* BOTONES */
 button {
   width: 100%;
   padding: 12px;
@@ -46,11 +43,33 @@ button {
   color: black;
   font-weight: bold;
   font-size: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* BUSCADOR */
-.buscar {
-  margin: 10px 0;
+button:hover {
+  background: #00c853;
+}
+
+button:active {
+  transform: scale(0.96);
+  background: #00b248;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tabs button {
+  flex: 1;
+  background: #ffffff22;
+  color: white;
 }
 
 /* CARD */
@@ -62,14 +81,8 @@ button {
   margin-top: 10px;
   border-radius: 15px;
   backdrop-filter: blur(10px);
-  transition: 0.2s;
 }
 
-.card:hover {
-  transform: scale(1.02);
-}
-
-/* FOTO */
 .avatar {
   width: 60px;
   height: 60px;
@@ -78,7 +91,6 @@ button {
   margin-right: 10px;
 }
 
-/* INFO */
 .info {
   flex: 1;
 }
@@ -93,7 +105,6 @@ button {
   font-weight: bold;
 }
 
-/* HISTORIAL */
 .historial {
   background: rgba(0,0,0,0.3);
   padding: 10px;
@@ -101,10 +112,8 @@ button {
   border-radius: 10px;
 }
 
-/* BOTON VOLVER */
 .volver {
   background: #ff5252;
-  margin-top: 15px;
 }
 </style>
 
@@ -112,7 +121,7 @@ button {
 
 <body>
 
-<div class="header">💪 Dejavu Gym </div>
+<div class="header">💪Dejavu GYM</div>
 
 <div class="container">
 
@@ -129,11 +138,15 @@ button {
 <input type="number" id="monto" placeholder="Monto">
 <input type="file" id="foto">
 
-<button onclick="guardar()">Guardar</button>
+<button id="btnGuardar" onclick="guardar()">Guardar</button>
 
-<h3>Clientes</h3>
+<div class="tabs">
+  <button onclick="cargar()">Clientes</button>
+  <button onclick="verIngresos()">Ingresos</button>
+  <button onclick="noPagaron()">No pagaron</button>
+</div>
 
-<input class="buscar" type="text" id="buscar" placeholder="Buscar..." oninput="filtrar()">
+<input type="text" id="buscar" placeholder="Buscar..." oninput="filtrar()">
 
 <div id="lista"></div>
 
@@ -141,7 +154,7 @@ button {
 
 <script>
 
-const URL = "https://script.google.com/macros/s/AKfycbxlEHqK_r1cnmRQZzefjQZgKbgiPu0r-Xs_OtwOCV_OcL7NZpp-TDmNwNFvk6oijgoS/exec";
+const URL = "https://script.google.com/macros/s/AKfycbyCUR_bA0itQSwyjAtCPcPvilrVyeZ17UhrmcE3e11XZXCh0TDqUfhTS18k0UKE1OvY/exec";
 let clientes = [];
 
 // Convertir imagen
@@ -153,32 +166,47 @@ function convertirBase64(file) {
   });
 }
 
-// Guardar
+// GUARDAR
 async function guardar() {
-  const file = foto.files[0];
-  let base64 = "";
+  const btn = document.getElementById("btnGuardar");
 
+  const nombre = document.getElementById("nombre").value;
+  const fecha = document.getElementById("fecha").value;
+  const membresia = document.getElementById("membresia").value;
+  const monto = document.getElementById("monto").value;
+  const file = document.getElementById("foto").files[0];
+
+  if (!nombre || !fecha || !monto) {
+    alert("Completa los campos");
+    return;
+  }
+
+  btn.innerText = "Guardando...";
+  btn.disabled = true;
+
+  let base64 = "";
   if (file) base64 = await convertirBase64(file);
 
-  const data = {
-    nombre: nombre.value,
-    fecha: fecha.value,
-    membresia: membresia.value,
-    monto: monto.value,
-    foto: base64
-  };
+  const data = { nombre, fecha, membresia, monto, foto: base64 };
 
   fetch(URL, {
     method: "POST",
     body: JSON.stringify(data)
   })
+  .then(res => res.json())
   .then(() => {
-    alert("Guardado");
+    btn.innerText = "Guardado ✅";
+
+    setTimeout(() => {
+      btn.innerText = "Guardar";
+      btn.disabled = false;
+    }, 1500);
+
     cargar();
   });
 }
 
-// Cargar
+// CARGAR CLIENTES
 function cargar() {
   fetch(URL)
   .then(res => res.json())
@@ -188,7 +216,7 @@ function cargar() {
   });
 }
 
-// Mostrar lista
+// MOSTRAR
 function mostrar(data) {
   let html = "";
 
@@ -210,20 +238,18 @@ function mostrar(data) {
   lista.innerHTML = html;
 }
 
-// Filtrar
+// BUSCAR
 function filtrar() {
   const texto = buscar.value.toLowerCase();
   const filtrados = clientes.filter(c => c.nombre.toLowerCase().includes(texto));
   mostrar(filtrados);
 }
 
-// Historial
+// HISTORIAL
 function verHistorial(id) {
   const cliente = clientes.find(c => c.id == id);
 
-  let html = `
-    <h3>${cliente.nombre}</h3>
-  `;
+  let html = `<h3>${cliente.nombre}</h3>`;
 
   cliente.historial.forEach(p => {
     html += `
@@ -237,6 +263,53 @@ function verHistorial(id) {
 
   html += `<button class="volver" onclick="cargar()">Volver</button>`;
 
+  lista.innerHTML = html;
+}
+
+// INGRESOS
+function verIngresos() {
+  const hoy = new Date();
+  let total = 0;
+  let html = "<h3>💰 Ingresos del mes</h3>";
+
+  clientes.forEach(c => {
+    c.historial.forEach(p => {
+      const fecha = new Date(p[2]);
+      if (fecha.getMonth() === hoy.getMonth()) {
+        total += Number(p[5]);
+        html += `<div class="historial">${c.nombre} - $${p[5]}</div>`;
+      }
+    });
+  });
+
+  lista.innerHTML = `<h2>Total: $${total}</h2>` + html;
+}
+
+// NO PAGARON
+function noPagaron() {
+  const hoy = new Date();
+  let html = "<h3>❌ No han pagado este mes</h3>";
+
+  clientes.forEach(c => {
+    const pagoEsteMes = c.historial.some(p => {
+      const fecha = new Date(p[2]);
+      return fecha.getMonth() === hoy.getMonth();
+    });
+
+    if (!pagoEsteMes) {
+      html += `
+        <div class="card">
+          ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
+          <div class="info">
+            <b>${c.nombre}</b><br>
+            <span class="estado-vencido">No ha pagado</span>
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  html += `<button class="volver" onclick="cargar()">Volver</button>`;
   lista.innerHTML = html;
 }
 
