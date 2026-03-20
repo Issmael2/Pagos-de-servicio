@@ -37,7 +37,6 @@ button {
 button:active {
   transform: scale(0.96);
   background: #00b248;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .menu button {
@@ -65,13 +64,8 @@ button:active {
   border: 2px solid #00e676;
 }
 
-.estado-activo {
-  color: #00e676;
-}
-
-.estado-vencido {
-  color: red;
-}
+.estado-activo { color: #00e676; }
+.estado-vencido { color: red; }
 
 .volver {
   background: #607d8b;
@@ -105,10 +99,11 @@ button:active {
 
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbxDB9WpC0yh1A036Ogi5iLmVPFgwZ17kisMJ7KA_zTGF5zLG91Sl50thvaDRmaHQIwT/exec";
+
 let clientes = [];
 
 function cargar() {
-  fetch(URL)
+  return fetch(URL)
     .then(res => res.json())
     .then(data => {
       clientes = data;
@@ -131,16 +126,8 @@ function guardar() {
 
     fetch(URL, {
       method: "POST",
-      body: JSON.stringify({
-        nombre,
-        fecha,
-        tipo,
-        monto,
-        foto: base64
-      })
+      body: JSON.stringify({ nombre, fecha, tipo, monto, foto: base64 })
     }).then(() => {
-
-      // 🔄 limpiar formulario
       document.getElementById("nombre").value = "";
       document.getElementById("fecha").value = "";
       document.getElementById("tipo").selectedIndex = 0;
@@ -157,123 +144,123 @@ function guardar() {
 }
 
 function verClientes() {
-  let html = "<h3>👥 Clientes</h3>";
+  cargar().then(() => {
+    let html = "<h3>👥 Clientes</h3>";
 
-  clientes.forEach(c => {
-    html += `
-      <div class="card">
-        ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
-        
-        <div style="flex:1;">
-          <b>${c.nombre}</b><br>
-          <span class="${c.estado === 'Activo' ? 'estado-activo' : 'estado-vencido'}">
-            ${c.estado}
-          </span><br>
-          <small>Vence: ${c.vencimiento}</small>
-        </div>
-
-        <button onclick="renovar('${c.nombre}')" style="width:auto;padding:8px;">
-          💰
-        </button>
-      </div>
-
-    `;
-  });
-
-  html += `<button class="volver" onclick="menu()">⬅ Volver</button>`;
-
-  document.getElementById("pantalla").innerHTML = html;
-}
-
-function verIngresos() {
-  const hoy = new Date();
-  const mes = hoy.getMonth();
-  const año = hoy.getFullYear();
-
-  let total = 0;
-
-  clientes.forEach(c => {
-    c.historial.forEach(p => {
-      const fecha = new Date(p[2]);
-      if (fecha.getMonth() === mes && fecha.getFullYear() === año) {
-        total += Number(p[4]);
-      }
-    });
-  });
-
-  let html = `
-    <h3>💰 Ingresos del mes</h3>
-    <h2>$${total}</h2>
-    <button class="volver" onclick="menu()">⬅ Volver</button>
-  `;
-
-  document.getElementById("pantalla").innerHTML = html;
-}
-
-function noPagaron() {
-  const hoy = new Date();
-  const mes = hoy.getMonth();
-  const año = hoy.getFullYear();
-
-  let html = "<h3>❌ No han pagado</h3>";
-  let contador = 0;
-
-  clientes.forEach(c => {
-    const pago = c.historial.some(p => {
-      const fecha = new Date(p[2]);
-      return fecha.getMonth() === mes && fecha.getFullYear() === año;
-    <button onclick="renovar('${c.nombre}')" style="width:auto;padding:8px;">
-  💰
-</button>
-
-    });
-
-    if (!pago) {
-      contador++;
+    clientes.forEach(c => {
       html += `
         <div class="card">
           ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
-          <div>
+          
+          <div style="flex:1;">
             <b>${c.nombre}</b><br>
-            <span class="estado-vencido">No ha pagado</span>
+            <span class="${c.estado === 'Activo' ? 'estado-activo' : 'estado-vencido'}">
+              ${c.estado}
+            </span><br>
+            <small>Vence: ${c.vencimiento}</small>
           </div>
+
+          <button onclick="renovar('${c.nombre}')" style="width:auto;padding:8px;">
+            💰
+          </button>
         </div>
       `;
-    }
+    });
+
+    html += `<button class="volver" onclick="menu()">⬅ Volver</button>`;
+    document.getElementById("pantalla").innerHTML = html;
   });
+}
 
-  if (contador === 0) {
-    html += "<p>✅ Todos al corriente</p>";
-  }
+function verIngresos() {
+  cargar().then(() => {
+    const hoy = new Date();
+    const mes = hoy.getMonth();
+    const año = hoy.getFullYear();
 
-  html += `<button class="volver" onclick="menu()">⬅ Volver</button>`;
+    let total = 0;
 
-  document.getElementById("pantalla").innerHTML = html;
+    clientes.forEach(c => {
+      (c.historial || []).forEach(p => {
+        const fecha = new Date(p[2]);
+        if (fecha.getMonth() === mes && fecha.getFullYear() === año) {
+          total += Number(p[4]);
+        }
+      });
+    });
+
+    document.getElementById("pantalla").innerHTML = `
+      <h3>💰 Ingresos del mes</h3>
+      <h2>$${total}</h2>
+      <button class="volver" onclick="menu()">⬅ Volver</button>
+    `;
+  });
+}
+
+function noPagaron() {
+  cargar().then(() => {
+    const hoy = new Date();
+    const mes = hoy.getMonth();
+    const año = hoy.getFullYear();
+
+    let html = "<h3>❌ No han pagado</h3>";
+    let contador = 0;
+
+    clientes.forEach(c => {
+
+      const pago = (c.historial || []).some(p => {
+        const fecha = new Date(p[2]);
+        return fecha.getMonth() === mes && fecha.getFullYear() === año;
+      });
+
+      if (!pago) {
+        contador++;
+
+        html += `
+          <div class="card">
+            ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
+            
+            <div style="flex:1;">
+              <b>${c.nombre}</b><br>
+              <span class="estado-vencido">No ha pagado</span>
+            </div>
+
+            <button onclick="renovar('${c.nombre}')" style="width:auto;padding:8px;">
+              💰
+            </button>
+          </div>
+        `;
+      }
+    });
+
+    if (contador === 0) {
+      html += "<p>✅ Todos al corriente</p>";
+    }
+
+    html += `<button class="volver" onclick="menu()">⬅ Volver</button>`;
+    document.getElementById("pantalla").innerHTML = html;
+  });
 }
 
 function renovar(nombre) {
   const monto = prompt("Monto del pago:");
-
   if (!monto) return;
 
-  const hoy = new Date();
-  const fecha = hoy.toISOString().split("T")[0];
+  const fecha = new Date().toISOString().split("T")[0];
 
   fetch(URL, {
     method: "POST",
     body: JSON.stringify({
-      nombre: nombre,
-      fecha: fecha,
+      nombre,
+      fecha,
       tipo: "Mensual",
-      monto: monto
+      monto
     })
   }).then(() => {
     alert("Pago registrado 💰");
-    cargar();
     verClientes();
   });
 }
-
 
 function menu() {
   document.getElementById("pantalla").innerHTML = "";
