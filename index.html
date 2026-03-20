@@ -2,37 +2,22 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gym Control</title>
-
 <style>
 body {
-  font-family: 'Segoe UI', sans-serif;
-  margin: 0;
-  background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
+  font-family: Arial;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   color: white;
-}
-
-.header {
-  padding: 20px;
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.container {
   padding: 15px;
 }
 
 input, select {
   width: 100%;
   padding: 12px;
-  margin: 6px 0;
-  border-radius: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
   border: none;
-  outline: none;
 }
 
-/* BOTONES */
 button {
   width: 100%;
   padding: 12px;
@@ -49,258 +34,206 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-button:hover {
-  background: #00c853;
-}
-
 button:active {
   transform: scale(0.96);
   background: #00b248;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* TABS */
-.tabs {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.tabs button {
-  flex: 1;
-  background: #ffffff22;
+.menu button {
+  width: 32%;
+  margin: 5px 1%;
+  background: #455a64;
   color: white;
 }
 
-/* CARD */
 .card {
   display: flex;
   align-items: center;
-  background: rgba(255,255,255,0.08);
+  gap: 12px;
+  background: rgba(255,255,255,0.1);
   padding: 10px;
   margin-top: 10px;
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
+  border-radius: 12px;
 }
 
 .avatar {
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 10px;
-}
-
-.info {
-  flex: 1;
+  border: 2px solid #00e676;
 }
 
 .estado-activo {
   color: #00e676;
-  font-weight: bold;
 }
 
 .estado-vencido {
-  color: #ff5252;
-  font-weight: bold;
-}
-
-.historial {
-  background: rgba(0,0,0,0.3);
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 10px;
+  color: red;
 }
 
 .volver {
-  background: #ff5252;
+  background: #607d8b;
+  color: white;
 }
 </style>
-
 </head>
 
 <body>
 
-<div class="header">💪Dejavu GYM</div>
+<h2>Registrar cliente</h2>
 
-<div class="container">
-
-<h3>Registrar cliente</h3>
-
-<input type="text" id="nombre" placeholder="Nombre">
-<input type="date" id="fecha">
-
-<select id="membresia">
+<input id="nombre" placeholder="Nombre">
+<input id="fecha" type="date">
+<select id="tipo">
   <option>Mensual</option>
   <option>Semanal</option>
 </select>
+<input id="monto" type="number" placeholder="Monto">
+<input id="foto" type="file">
 
-<input type="number" id="monto" placeholder="Monto">
-<input type="file" id="foto">
+<button onclick="guardar()">Guardar</button>
 
-<button id="btnGuardar" onclick="guardar()">Guardar</button>
-
-<div class="tabs">
-  <button onclick="cargar()">Clientes</button>
+<div class="menu">
+  <button onclick="verClientes()">Clientes</button>
   <button onclick="verIngresos()">Ingresos</button>
   <button onclick="noPagaron()">No pagaron</button>
 </div>
 
-<input type="text" id="buscar" placeholder="Buscar..." oninput="filtrar()">
-
-<div id="lista"></div>
-
-</div>
+<div id="pantalla"></div>
 
 <script>
-
 const URL = "https://script.google.com/macros/s/AKfycbxDB9WpC0yh1A036Ogi5iLmVPFgwZ17kisMJ7KA_zTGF5zLG91Sl50thvaDRmaHQIwT/exec";
 let clientes = [];
 
-// Convertir imagen
-function convertirBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-  });
+function cargar() {
+  fetch(URL)
+    .then(res => res.json())
+    .then(data => {
+      clientes = data;
+    });
 }
 
-// GUARDAR
-async function guardar() {
-  const btn = document.getElementById("btnGuardar");
-
+function guardar() {
   const nombre = document.getElementById("nombre").value;
   const fecha = document.getElementById("fecha").value;
-  const membresia = document.getElementById("membresia").value;
+  const tipo = document.getElementById("tipo").value;
   const monto = document.getElementById("monto").value;
   const file = document.getElementById("foto").files[0];
 
-  if (!nombre || !fecha || !monto) {
-    alert("Completa los campos");
-    return;
-  }
+  if (!nombre) return alert("Nombre requerido");
 
-  btn.innerText = "Guardando...";
-  btn.disabled = true;
+  const reader = new FileReader();
 
-  let base64 = "";
-  if (file) base64 = await convertirBase64(file);
+  reader.onload = function() {
+    const base64 = reader.result.split(",")[1];
 
-  const data = { nombre, fecha, membresia, monto, foto: base64 };
+    fetch(URL, {
+      method: "POST",
+      body: JSON.stringify({
+        nombre,
+        fecha,
+        tipo,
+        monto,
+        foto: base64
+      })
+    }).then(() => {
 
-  fetch(URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(() => {
-    btn.innerText = "Guardado ✅";
+      // 🔄 limpiar formulario
+      document.getElementById("nombre").value = "";
+      document.getElementById("fecha").value = "";
+      document.getElementById("tipo").selectedIndex = 0;
+      document.getElementById("monto").value = "";
+      document.getElementById("foto").value = "";
 
-    setTimeout(() => {
-      btn.innerText = "Guardar";
-      btn.disabled = false;
-    }, 1500);
+      cargar();
+      alert("Guardado ✅");
+    });
+  };
 
-    cargar();
-  });
+  if (file) reader.readAsDataURL(file);
+  else reader.onload();
 }
 
-// CARGAR CLIENTES
-function cargar() {
-  fetch(URL)
-  .then(res => res.json())
-  .then(data => {
-    clientes = data;
-    mostrar(clientes);
-  });
-}
+function verClientes() {
+  let html = "<h3>👥 Clientes</h3>";
 
-// MOSTRAR
-function mostrar(data) {
-  let html = "";
-
-  data.forEach(c => {
+  clientes.forEach(c => {
     html += `
-      <div class="card" onclick="verHistorial(${c.id})">
+      <div class="card">
         ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
-        <div class="info">
+        
+        <div style="flex:1;">
           <b>${c.nombre}</b><br>
           <span class="${c.estado === 'Activo' ? 'estado-activo' : 'estado-vencido'}">
             ${c.estado}
           </span><br>
-          Vence: ${new Date(c.vencimiento).toLocaleDateString()}
+          <small>Vence: ${c.vencimiento}</small>
         </div>
+
+        <button onclick="renovar('${c.nombre}')" style="width:auto;padding:8px;">
+          💰
+        </button>
       </div>
+
     `;
   });
 
-  lista.innerHTML = html;
+  html += `<button class="volver" onclick="menu()">⬅ Volver</button>`;
+
+  document.getElementById("pantalla").innerHTML = html;
 }
 
-// BUSCAR
-function filtrar() {
-  const texto = buscar.value.toLowerCase();
-  const filtrados = clientes.filter(c => c.nombre.toLowerCase().includes(texto));
-  mostrar(filtrados);
-}
-
-// HISTORIAL
-function verHistorial(id) {
-  const cliente = clientes.find(c => c.id == id);
-
-  let html = `<h3>${cliente.nombre}</h3>`;
-
-  cliente.historial.forEach(p => {
-    html += `
-      <div class="historial">
-        Pago: ${new Date(p[2]).toLocaleDateString()}<br>
-        Vence: ${new Date(p[3]).toLocaleDateString()}<br>
-        ${p[4]} - $${p[5]}
-      </div>
-    `;
-  });
-
-  html += `<button class="volver" onclick="cargar()">Volver</button>`;
-
-  lista.innerHTML = html;
-}
-
-// INGRESOS
 function verIngresos() {
   const hoy = new Date();
+  const mes = hoy.getMonth();
+  const año = hoy.getFullYear();
+
   let total = 0;
-  let html = "<h3>💰 Ingresos del mes</h3>";
 
   clientes.forEach(c => {
     c.historial.forEach(p => {
       const fecha = new Date(p[2]);
-      if (fecha.getMonth() === hoy.getMonth()) {
-        total += Number(p[5]);
-        html += `<div class="historial">${c.nombre} - $${p[5]}</div>`;
+      if (fecha.getMonth() === mes && fecha.getFullYear() === año) {
+        total += Number(p[4]);
       }
     });
   });
 
-  lista.innerHTML = `<h2>Total: $${total}</h2>` + html;
+  let html = `
+    <h3>💰 Ingresos del mes</h3>
+    <h2>$${total}</h2>
+    <button class="volver" onclick="menu()">⬅ Volver</button>
+  `;
+
+  document.getElementById("pantalla").innerHTML = html;
 }
 
-// NO PAGARON
 function noPagaron() {
   const hoy = new Date();
-  let html = "<h3>❌ No han pagado este mes</h3>";
+  const mes = hoy.getMonth();
+  const año = hoy.getFullYear();
+
+  let html = "<h3>❌ No han pagado</h3>";
+  let contador = 0;
 
   clientes.forEach(c => {
-    const pagoEsteMes = c.historial.some(p => {
+    const pago = c.historial.some(p => {
       const fecha = new Date(p[2]);
-      return fecha.getMonth() === hoy.getMonth();
+      return fecha.getMonth() === mes && fecha.getFullYear() === año;
+    <button onclick="renovar('${c.nombre}')" style="width:auto;padding:8px;">
+  💰
+</button>
+
     });
 
-    if (!pagoEsteMes) {
+    if (!pago) {
+      contador++;
       html += `
         <div class="card">
           ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
-          <div class="info">
+          <div>
             <b>${c.nombre}</b><br>
             <span class="estado-vencido">No ha pagado</span>
           </div>
@@ -309,12 +242,44 @@ function noPagaron() {
     }
   });
 
-  html += `<button class="volver" onclick="cargar()">Volver</button>`;
-  lista.innerHTML = html;
+  if (contador === 0) {
+    html += "<p>✅ Todos al corriente</p>";
+  }
+
+  html += `<button class="volver" onclick="menu()">⬅ Volver</button>`;
+
+  document.getElementById("pantalla").innerHTML = html;
+}
+
+function renovar(nombre) {
+  const monto = prompt("Monto del pago:");
+
+  if (!monto) return;
+
+  const hoy = new Date();
+  const fecha = hoy.toISOString().split("T")[0];
+
+  fetch(URL, {
+    method: "POST",
+    body: JSON.stringify({
+      nombre: nombre,
+      fecha: fecha,
+      tipo: "Mensual",
+      monto: monto
+    })
+  }).then(() => {
+    alert("Pago registrado 💰");
+    cargar();
+    verClientes();
+  });
+}
+
+
+function menu() {
+  document.getElementById("pantalla").innerHTML = "";
 }
 
 cargar();
-
 </script>
 
 </body>
