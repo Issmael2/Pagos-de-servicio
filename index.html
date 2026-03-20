@@ -150,7 +150,7 @@ function verClientes() {
     clientes.forEach(c => {
       html += `
         <div class="card">
-          ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
+          ${c.foto ? `<img class="avatar" src="${convertirURL(c.foto)}" onerror="this.src='https://via.placeholder.com/55'"> : ""}
           
           <div style="flex:1;">
             <b>${c.nombre}</b><br>
