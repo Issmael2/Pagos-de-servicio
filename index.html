@@ -198,7 +198,7 @@ function verIngresos() {
       (c.historial || []).forEach(p => {
         const fecha = new Date(p[2]);
         if (fecha.getMonth() === mes && fecha.getFullYear() === año) {
-          total += Number(p[4]);
+          total += Number(p[5]);
         }
       });
     });
