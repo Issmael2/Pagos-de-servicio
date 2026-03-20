@@ -100,6 +100,23 @@ button:active {
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbxDB9WpC0yh1A036Ogi5iLmVPFgwZ17kisMJ7KA_zTGF5zLG91Sl50thvaDRmaHQIwT/exec";
 
+  function convertirURL(url) {
+  if (!url) return "";
+
+  // Si ya viene bien
+  if (url.includes("googleusercontent.com")) return url;
+
+  // Si viene como drive normal
+  if (url.includes("drive.google.com")) {
+    const idMatch = url.match(/id=([^&]+)/);
+    if (idMatch) {
+      return "https://lh3.googleusercontent.com/d/" + idMatch[1];
+    }
+  }
+
+  return url;
+}
+
 let clientes = [];
 
 function cargar() {
