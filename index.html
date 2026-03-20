@@ -30,13 +30,11 @@ button {
   font-size: 16px;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   -webkit-tap-highlight-color: transparent;
 }
 
 button:active {
   transform: scale(0.96);
-  background: #00b248;
 }
 
 .menu button {
@@ -100,13 +98,14 @@ button:active {
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbxDB9WpC0yh1A036Ogi5iLmVPFgwZ17kisMJ7KA_zTGF5zLG91Sl50thvaDRmaHQIwT/exec";
 
-  function convertirURL(url) {
+let clientes = [];
+
+// 🔥 FUNCIÓN QUE ARREGLA LAS URL DE DRIVE
+function convertirURL(url) {
   if (!url) return "";
 
-  // Si ya viene bien
   if (url.includes("googleusercontent.com")) return url;
 
-  // Si viene como drive normal
   if (url.includes("drive.google.com")) {
     const idMatch = url.match(/id=([^&]+)/);
     if (idMatch) {
@@ -116,8 +115,6 @@ const URL = "https://script.google.com/macros/s/AKfycbxDB9WpC0yh1A036Ogi5iLmVPFg
 
   return url;
 }
-
-let clientes = [];
 
 function cargar() {
   return fetch(URL)
@@ -139,7 +136,7 @@ function guardar() {
   const reader = new FileReader();
 
   reader.onload = function() {
-    const base64 = reader.result.split(",")[1];
+    const base64 = reader.result ? reader.result.split(",")[1] : null;
 
     fetch(URL, {
       method: "POST",
@@ -167,7 +164,7 @@ function verClientes() {
     clientes.forEach(c => {
       html += `
         <div class="card">
-          ${c.foto ? `<img class="avatar" src="${convertirURL(c.foto)}" onerror="this.src='https://via.placeholder.com/55'"> : ""}
+          <img class="avatar" src="${convertirURL(c.foto)}" onerror="this.src='https://via.placeholder.com/55'">
           
           <div style="flex:1;">
             <b>${c.nombre}</b><br>
@@ -224,7 +221,6 @@ function noPagaron() {
     let contador = 0;
 
     clientes.forEach(c => {
-
       const pago = (c.historial || []).some(p => {
         const fecha = new Date(p[2]);
         return fecha.getMonth() === mes && fecha.getFullYear() === año;
@@ -235,7 +231,7 @@ function noPagaron() {
 
         html += `
           <div class="card">
-            ${c.foto ? `<img class="avatar" src="${c.foto}">` : ""}
+            <img class="avatar" src="${convertirURL(c.foto)}" onerror="this.src='https://via.placeholder.com/55'">
             
             <div style="flex:1;">
               <b>${c.nombre}</b><br>
