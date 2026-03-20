@@ -1,2 +1,2 @@
 # Pagos-de-servicio
-pagos de pilates
+pagos GYM
